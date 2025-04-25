@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anti Zapret", "Anti Zapret.csproj", "{A249A957-5CE6-4E79-9864-57900B8C1037}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A249A957-5CE6-4E79-9864-57900B8C1037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A249A957-5CE6-4E79-9864-57900B8C1037}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A249A957-5CE6-4E79-9864-57900B8C1037}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A249A957-5CE6-4E79-9864-57900B8C1037}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E9487A76-B64D-4FE8-BE07-27AD2CDAB02F}
+	EndGlobalSection
+EndGlobal

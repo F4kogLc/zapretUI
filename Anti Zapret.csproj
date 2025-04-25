@@ -1,0 +1,121 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Anti_Zapret</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest></ApplicationManifest>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Roboto.ttf" />
+    <None Remove="zapret\cygwin1.dll" />
+    <None Remove="zapret\elevator.exe" />
+    <None Remove="zapret\zapret-winws\files\list-youtube.txt" />
+    <None Remove="zapret\zapret-winws\files\quic_initial_www_google_com.bin" />
+    <None Remove="zapret\killall.exe" />
+    <None Remove="zapret\preset_russia.cmd" />
+    <None Remove="zapret\preset_russia_autohostlist.cmd" />
+    <None Remove="zapret\service_create.cmd" />
+    <None Remove="zapret\service_del.cmd" />
+    <None Remove="zapret\service_start.cmd" />
+    <None Remove="zapret\service_stop.cmd" />
+    <None Remove="zapret\task_create.cmd" />
+    <None Remove="zapret\task_remove.cmd" />
+    <None Remove="zapret\task_start.cmd" />
+    <None Remove="zapret\task_stop.cmd" />
+    <None Remove="zapret\tools\elevator.vbs" />
+    <None Remove="zapret\WinDivert.dll" />
+    <None Remove="zapret\WinDivert64.sys" />
+    <None Remove="zapret\windivert_delete.cmd" />
+    <None Remove="zapret\winws.exe" />
+    <None Remove="zapret\_CMD_ADMIN.cmd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="fonts\roboto.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\cygwin1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\elevator.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\files\list-youtube.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\files\quic_initial_www_google_com.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\killall.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\preset_russia.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\preset_russia_autohostlist.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\service_create.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\service_del.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\service_start.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\service_stop.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\task_create.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\task_remove.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\task_start.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\task_stop.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\tools\elevator.vbs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\WinDivert.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\WinDivert64.sys">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\windivert_delete.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\winws.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\zapret-winws\_CMD_ADMIN.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClickableTransparentOverlay" Version="11.1.0" />
+    <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
