@@ -9,5 +9,5 @@
 3. Run the program and click the ``Run Anti Zapret`` button
 
 # Демонстрация
-![](https://i.imgur.com/ILy8qe5.mp4)
+Видео - (https://i.imgur.com/ILy8qe5.mp4)
 ![](https://i.imgur.com/pd7wMjZ.png)
