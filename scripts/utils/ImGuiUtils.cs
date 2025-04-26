@@ -30,7 +30,7 @@ internal static class ImGuiUtils
 
     public static void Tooltip(string text)
     {
-        if (ImGui.IsItemHovered())
+        if (ImGui.IsItemHovered() && !string.IsNullOrEmpty(text))
         {
             ImGui.BeginTooltip();
             ImGui.TextUnformatted(text);

@@ -1,5 +1,10 @@
 ﻿using ImGuiNET;
 
+internal interface IElement
+{
+    void Render();
+}
+
 internal interface ITab
 {
     void Render();
@@ -16,13 +21,13 @@ internal class TabSystem
 
     public void Render()
     {
-        if (ImGui.BeginTabBar("##Tabs"))
+        ImGui.BeginTabBar("##Tabs");
+
+        foreach (var tab in tabs)
         {
-            foreach (var tab in tabs)
-            {
-                tab.Render();
-            }
-            ImGui.EndTabBar();
+            tab.Render();
         }
+
+        ImGui.EndTabBar();
     }
 }

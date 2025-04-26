@@ -11,6 +11,15 @@ internal class ProcessLauncher
     }
 
     public void RunAntiZapret()
+        => RunProcess(configManager.Config.ZapretPath, BuildArgumentsString());
+
+    public void RunGoodbyeDPI()
+        => RunProcess(configManager.Config.GoodbyeDpiPath, BuildArgumentsString());
+
+    public void RunBlockcheck()
+        => RunProcess(configManager.Config.BlockcheckPath, "");
+
+    string BuildArgumentsString()
     {
         var arguments = new StringBuilder();
 
@@ -28,45 +37,31 @@ internal class ProcessLauncher
         foreach (var arg in configManager.Config.SelectedArgumentsChain)
         {
             arguments.Append(arg);
+
+            if (!arg.EndsWith(" "))
+                arguments.Append(' ');
         }
 
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = Consts.ZAPRET_PATH,
-            Arguments = arguments.ToString(),
-            WindowStyle = configManager.Config.ShowConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden
-            //UseShellExecute = false,
-            //CreateNoWindow = true
-        };
-
-        try
-        {
-            using Process process = new();
-            process.StartInfo = startInfo;
-            process.Start();
-
-            if (configManager.Config.AutoQuit)
-                Environment.Exit(0);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
+        return arguments.ToString();
     }
 
-    public void RunBlockcheck()
+    void RunProcess(string fileName, string arguments)
     {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = Consts.BLOCKCHECK_PATH,
-            UseShellExecute = false,
-        };
-
         try
         {
-            using Process process = new();
-            process.StartInfo = startInfo;
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                WindowStyle = configManager.Config.ShowConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden,
+                UseShellExecute = false,
+            };
+
+            using var process = new Process { StartInfo = startInfo };
             process.Start();
+
+            if (configManager.Config.AutoQuit && fileName != configManager.Config.BlockcheckPath)
+                Environment.Exit(0);
         }
         catch (Exception ex)
         {

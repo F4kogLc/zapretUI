@@ -4,12 +4,11 @@ using System.Diagnostics;
 internal class AutoStartManager
 {
     const string RegistryKeyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    readonly string appName;
+    readonly string appName = "AntiZapret";
     readonly string exePath;
 
-    public AutoStartManager(string appName)
+    public AutoStartManager()
     {
-        this.appName = appName;
         exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().MainModule.FileName);
     }
 

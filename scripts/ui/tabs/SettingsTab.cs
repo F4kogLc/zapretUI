@@ -5,13 +5,13 @@ internal class SettingsTab : ITab
 {
     readonly ConfigManager configManager;
     readonly ProcessLauncher processLauncher;
-
-    int selectedAvailableArgIndex = -1;
+    readonly ArgumentChainEditor argumentChainEditor;
 
     public SettingsTab(ConfigManager configManager)
     {
         this.configManager = configManager;
         processLauncher = new(configManager);
+        argumentChainEditor = new(configManager);
     }
 
     public void Render()
@@ -21,7 +21,7 @@ internal class SettingsTab : ITab
         RenderRunButton();
         RenderConfigControls();
         RenderFeaturesSettings();
-        RenderArgumentChainEditor();
+        argumentChainEditor.Render();
         RenderSettings();
 
         ImGui.EndTabItem();
@@ -31,7 +31,7 @@ internal class SettingsTab : ITab
     {
         ImGuiUtils.CenterUIElement(120);
 
-        if (ImGui.Button("Start Anti Zapret", new Vector2(120, 30)))
+        if (ImGui.Button("Start Zapret", new Vector2(120, 30)))
         {
             if (!Utils.IsRunAsAdmin())
             {
@@ -43,6 +43,19 @@ internal class SettingsTab : ITab
         }
 
         ImGui.SameLine();
+
+        if (ImGui.Button("Start GDBYDPI", new Vector2(120, 30)))
+        {
+            if (!Utils.IsRunAsAdmin())
+            {
+                Console.WriteLine("Run as admin");
+                Utils.RestartAsAdmin();
+                return;
+            }
+            processLauncher.RunGoodbyeDPI();
+        }
+
+        ImGuiUtils.CenterUIElement(60);
 
         if (ImGui.Button("Start Blockcheck", new Vector2(120, 30)))
         {
@@ -111,82 +124,6 @@ internal class SettingsTab : ITab
         ImGui.Separator();
     }
 
-    void RenderArgumentChainEditor()
-    {
-        ImGui.Text("Argument Chain Builder");
-
-        var availableArgs = configManager.Config.AvailableArguments.ToArray();
-
-        if (ImGui.Combo("##Chain", ref selectedAvailableArgIndex, availableArgs, availableArgs.Length))
-        {
-            // при выборе аргумента
-        }
-
-        ImGui.SameLine();
-
-        if (ImGui.Button("Add to Chain") && selectedAvailableArgIndex >= 0)
-        {
-            var selectedArg = availableArgs[selectedAvailableArgIndex];
-            configManager.Config.SelectedArgumentsChain.Add(selectedArg);
-        }
-
-        ImGui.BeginChild("ChainList", new Vector2(0, 250));
-
-        // доступная ширина
-        float currentX = 0;
-        float currentY = 0;
-        var availableWidth = ImGui.GetContentRegionAvail().X;
-        var itemSpacing = ImGui.GetStyle().ItemSpacing.X;
-        var lineHeight = ImGui.GetTextLineHeightWithSpacing();
-
-        ImGui.BeginGroup();
-        for (int i = 0; i < configManager.Config.SelectedArgumentsChain.Count; i++)
-        {
-            var arg = configManager.Config.SelectedArgumentsChain[i];
-
-            // размер текста
-            var textSize = ImGui.CalcTextSize(arg);
-            var buttonSize = new Vector2(20, textSize.Y);
-            var totalWidth = textSize.X + buttonSize.X + itemSpacing * 2;
-
-            // проверка на необходимость переноса
-            if (currentX + totalWidth > availableWidth && currentX > 0)
-            {
-                currentX = 0;
-                currentY += lineHeight;
-            }
-
-            ImGui.SetCursorPos(new Vector2(currentX, currentY));
-
-            ImGui.Text(arg);
-
-            // позиционирование кнопки удаления
-            ImGui.SetCursorPos(new Vector2(
-                currentX + textSize.X + itemSpacing / 2,
-                currentY + (textSize.Y - buttonSize.Y) / 2
-            ));
-
-            ImGui.PushID($"remove_{i}");
-            ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.8f, 0.1f, 0.1f, 1.0f));
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1.0f, 0.2f, 0.2f, 1.0f));
-            if (ImGui.Button("X", buttonSize))
-            {
-                configManager.Config.SelectedArgumentsChain.RemoveAt(i);
-                i--;
-            }
-            ImGui.PopStyleColor(2);
-            ImGui.PopID();
-
-            ImGui.SameLine();
-            currentX += totalWidth + itemSpacing;
-        }
-        ImGui.EndGroup();
-
-        ImGui.EndChild();
-
-        ImGui.Separator();
-    }
-
     void RenderSettings()
     {
         ImGui.Checkbox("Show Console", ref configManager.Config.ShowConsole);
@@ -202,6 +139,15 @@ internal class SettingsTab : ITab
             configManager.Save();
         }
         ImGuiUtils.Tooltip("Запускать программу при старте винды");
+
+        ImGui.Text("Zapret Path");
+        ImGui.InputText("##ZapretInput", ref configManager.Config.ZapretPath, 256);
+
+        ImGui.Text("GoodbyeDPI Path");
+        ImGui.InputText("##GoodbyeInput", ref configManager.Config.GoodbyeDpiPath, 256);
+
+        ImGui.Text("Blockcheck Path");
+        ImGui.InputText("##BlockcheckInput", ref configManager.Config.BlockcheckPath, 256);
 
         ImGui.Text("Background Transparency");
         ImGui.SliderFloat("##BackgroundAlpha", ref configManager.Config.BackgroundAlpha, 0.1f, 1.0f, "%.2f");

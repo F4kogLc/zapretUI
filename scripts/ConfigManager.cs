@@ -11,7 +11,7 @@ internal class ConfigManager
     public ConfigManager()
     {
         config = new Config();
-        autoStartManager = new AutoStartManager("AntiZapret");
+        autoStartManager = new AutoStartManager();
         Load();
     }
 
@@ -23,11 +23,11 @@ internal class ConfigManager
             {
                 var json = File.ReadAllText(Consts.CONFIG_PATH);
                 config = JsonConvert.DeserializeObject<Config>(json);
-                InitDefaultFeatures();
+                InitDefaultConfig();
             }
             else
             {
-                InitDefaultFeatures();
+                InitDefaultConfig();
                 Save();
             }
         }
@@ -51,87 +51,70 @@ internal class ConfigManager
         }
     }
 
-    void InitDefaultFeatures()
+    void InitDefaultConfig()
     {
         var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
+        if (string.IsNullOrEmpty(config.ZapretPath))
+            config.ZapretPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\zapret-winws\\winws.exe";
+
+        if (string.IsNullOrEmpty(config.GoodbyeDpiPath))
+            config.GoodbyeDpiPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\x86_64\\goodbyedpi.exe";
+
+        if (string.IsNullOrEmpty(config.BlockcheckPath))
+            config.BlockcheckPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\blockcheck\\blockcheck.cmd";
+
         if (config.AvailableArguments.Count == 0)
         {
-            config.AvailableArguments.Add("1");
-            config.AvailableArguments.Add("2");
-            config.AvailableArguments.Add("3");
-            config.AvailableArguments.Add("4");
-            config.AvailableArguments.Add("5");
-            config.AvailableArguments.Add("6");
-            config.AvailableArguments.Add("7");
-            config.AvailableArguments.Add("8");
-            config.AvailableArguments.Add("9");
-            config.AvailableArguments.Add("10");
-            config.AvailableArguments.Add("16");
-            config.AvailableArguments.Add("24");
-            config.AvailableArguments.Add("32");
-            config.AvailableArguments.Add("40");
-            config.AvailableArguments.Add("50");
-            config.AvailableArguments.Add("64");
-            config.AvailableArguments.Add("80");
-            config.AvailableArguments.Add("443");
-            config.AvailableArguments.Add("50000-50099");
-            config.AvailableArguments.Add(",");
-            config.AvailableArguments.Add(":");
-            config.AvailableArguments.Add("+");
-            config.AvailableArguments.Add("-");
-            config.AvailableArguments.Add("^");
             config.AvailableArguments.Add("--new");
-            config.AvailableArguments.Add("--wf-tcp=");
-            config.AvailableArguments.Add("--wf-udp=");
-            config.AvailableArguments.Add("--wf-l3=");
-            config.AvailableArguments.Add("--wssize=");
-            config.AvailableArguments.Add("--filter-tcp=");
-            config.AvailableArguments.Add("--filter-udp=");
-            config.AvailableArguments.Add("--filter-l7=");
-            config.AvailableArguments.Add("--dpi-desync=");
-            config.AvailableArguments.Add("--dpi-desync-ttl=");
-            config.AvailableArguments.Add("--dpi-desync-repeats=");
-            config.AvailableArguments.Add("--dpi-desync-autottl=");
-            config.AvailableArguments.Add("--dpi-desync-fooling=");
-            config.AvailableArguments.Add("--dpi-desync-hostlist=");
-            config.AvailableArguments.Add("--dpi-desync-split-pos=");
-            config.AvailableArguments.Add("--dpi-desync-fake-quic=");
-            config.AvailableArguments.Add("--dpi-desync-fake-http=");
-            config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=");
-            config.AvailableArguments.Add("--dpi-desync-split-seqovl=");
-            config.AvailableArguments.Add("--dpi-desync-fake-syndata=");
-            config.AvailableArguments.Add("--dpi-desync-ipfrag-pos-udp=");
-            config.AvailableArguments.Add("ipv4");
-            config.AvailableArguments.Add("ipv6");
-            config.AvailableArguments.Add("host");
-            config.AvailableArguments.Add("endhost");
-            config.AvailableArguments.Add("ipfrag2");
-            config.AvailableArguments.Add("badseq");
-            config.AvailableArguments.Add("badsum");
-            config.AvailableArguments.Add("disorder");
-            config.AvailableArguments.Add("disorder2");
-            config.AvailableArguments.Add("datanoack");
-            config.AvailableArguments.Add("discord");
-            config.AvailableArguments.Add("endhost");
-            config.AvailableArguments.Add("stun");
-            config.AvailableArguments.Add("fake");
-            config.AvailableArguments.Add("fakedsplit");
-            config.AvailableArguments.Add("fakeddisorder");
-            config.AvailableArguments.Add("split");
-            config.AvailableArguments.Add("split2");
-            config.AvailableArguments.Add("syndata");
-            config.AvailableArguments.Add("sniext");
-            config.AvailableArguments.Add("multidisorder");
-            config.AvailableArguments.Add("midsld");
-            config.AvailableArguments.Add("md5sig");
-            config.AvailableArguments.Add("method");
-            config.AvailableArguments.Add("rnd");
-            config.AvailableArguments.Add("dupsid");
-            config.AvailableArguments.Add("sni=www.google.com");
-            config.AvailableArguments.Add("0x00000000");
-            config.AvailableArguments.Add($"{appDirectory}zapret\\zapret-winws\\files\\list-youtube.txt");
-            config.AvailableArguments.Add($"{appDirectory}zapret\\zapret-winws\\files\\quic_initial_www_google_com.bin");
+            config.AvailableArguments.Add("--wf-tcp=80,443");
+            config.AvailableArguments.Add("--wf-udp=443,50000-50099");
+            config.AvailableArguments.Add("--wf-l3=ipv4");
+            config.AvailableArguments.Add("--filter-tcp=80,443");
+            config.AvailableArguments.Add("--filter-udp=80,443,50000-50099");
+            config.AvailableArguments.Add("--filter-l7=discord,stun");
+            config.AvailableArguments.Add("--wssize 1:6");
+            config.AvailableArguments.Add("--dpi-desync-ttl=1");
+            config.AvailableArguments.Add("--dpi-desync-ttl=2");
+            config.AvailableArguments.Add("--dpi-desync-ttl=3");
+            config.AvailableArguments.Add("--dpi-desync-ttl=4");
+            config.AvailableArguments.Add("--dpi-desync-ttl=5");
+            config.AvailableArguments.Add("--dpi-desync-autottl=1");
+            config.AvailableArguments.Add("--dpi-desync-autottl=2");
+            config.AvailableArguments.Add("--dpi-desync-autottl=3");
+            config.AvailableArguments.Add("--dpi-desync-autottl=4");
+            config.AvailableArguments.Add("--dpi-desync-autottl=5");
+            config.AvailableArguments.Add("--dpi-desync-any-protocol=1");
+            config.AvailableArguments.Add("--dpi-desync-cutoff=n5");
+            config.AvailableArguments.Add("--dpi-desync-repeats=10");
+            config.AvailableArguments.Add("--dpi-desync=fake");
+            config.AvailableArguments.Add("--dpi-desync=fakedsplit");
+            config.AvailableArguments.Add("--dpi-desync=fakeddisorder");
+            config.AvailableArguments.Add("--dpi-desync=fakeddisorder2");
+            config.AvailableArguments.Add("--dpi-desync=fake,fakedsplit");
+            config.AvailableArguments.Add("--dpi-desync=fake,multidisorder");
+            config.AvailableArguments.Add("--dpi-desync=fake,split2");
+            config.AvailableArguments.Add("--dpi-desync=disorder");
+            config.AvailableArguments.Add("--dpi-desync=multidisorder");
+            config.AvailableArguments.Add("--dpi-desync=syndata");
+            config.AvailableArguments.Add("--dpi-desync=syndata,disorder2");
+            config.AvailableArguments.Add("--dpi-desync=syndata,split2");
+            config.AvailableArguments.Add("--dpi-desync=syndata,multidisorder");
+            config.AvailableArguments.Add("--dpi-desync-fooling=badseq");
+            config.AvailableArguments.Add("--dpi-desync-fooling=md5sig");
+            config.AvailableArguments.Add("--dpi-desync-fooling=md5sig,badseq");
+            config.AvailableArguments.Add("--dpi-desync-split-seqovl=2");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=method+2");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=1");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=2");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=3");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=1,midsld");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=1,sniext+1,host+1,midsld-2,midsld,midsld+2,endhost-1");
+            config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,rndsni,padencap");
+            config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com");
+            config.AvailableArguments.Add($@"--dpi-desync-fake-tls=""{appDirectory + "zapret\\blockcheck\\files\\fake\\tls_clienthello_www_google_com.bin"}""");
+            config.AvailableArguments.Add($@"--dpi-desync-fake-quic=""{appDirectory + "zapret\\zapret-winws\\files\\quic_initial_www_google_com.bin"}""");
+            config.AvailableArguments.Add($@"--hostlist=""{appDirectory + "zapret\\zapret-winws\\files\\list-youtube.txt"}""");
         }
 
         if (config.Features.Count == 0)

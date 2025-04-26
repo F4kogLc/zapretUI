@@ -58,11 +58,11 @@ internal class EditorTab : ITab
 
         ImGui.Text("Arguments");
         ImGui.InputTextMultiline("##ArgumentsInput", ref newFeatureArgs, 65536,
-            new Vector2(-1, 250));
+            new Vector2(0, 250));
 
         ImGui.Text("Tooltip");
         ImGui.InputTextMultiline("##TooltipInput", ref newFeatureTooltip, 2048,
-            new Vector2(-1, ImGui.GetTextLineHeight() * 3));
+            new Vector2(0, ImGui.GetTextLineHeight() * 3));
     }
 
     void RenderActionButtons()
