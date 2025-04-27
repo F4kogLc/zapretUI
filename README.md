@@ -8,6 +8,12 @@
 2. Place the contents of the ``zapret-win-bundle-master`` in the ``zapret`` folder in the program folder
 3. Run the program and click the ``Run Anti Zapret`` button
 
+# Известные проблемы
+1. Если zapret не запускается - нужно избавиться от процессов WinDivert и winws 
+
+# Known issues
+1. If zapret does not start - you need to kill the WinDivert and winws processes
+
 # Демонстрация
-![](https://i.imgur.com/ILy8qe5.mp4)
+Видео - (https://i.imgur.com/ILy8qe5.mp4)
 ![](https://i.imgur.com/pd7wMjZ.png)
