@@ -14,6 +14,7 @@ internal class Program : Overlay
         tabSystem = new TabSystem(
             new SettingsTab(configManager),
             new EditorTab(configManager),
+            new ConsoleTab(),
             new HelpTab(),
             new ExitTab()
         );

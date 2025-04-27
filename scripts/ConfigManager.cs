@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 internal class ConfigManager
 {
@@ -7,11 +8,23 @@ internal class ConfigManager
     public Config Config => config;
 
     readonly AutoStartManager autoStartManager;
+    readonly JsonSerializerSettings jsonSettings;
 
     public ConfigManager()
     {
         config = new Config();
         autoStartManager = new AutoStartManager();
+        jsonSettings = new JsonSerializerSettings
+        {
+            MaxDepth = 32,
+            TypeNameHandling = TypeNameHandling.None,
+            MissingMemberHandling = MissingMemberHandling.Error,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new DefaultContractResolver
+            {
+                IgnoreSerializableInterface = true
+            }
+        };
         Load();
     }
 
@@ -21,8 +34,18 @@ internal class ConfigManager
         {
             if (File.Exists(Consts.CONFIG_PATH))
             {
+                var fileInfo = new FileInfo(Consts.CONFIG_PATH);
+
+                if (fileInfo.Length > 1024 * 1024) // 1MB
+                {
+                    File.Delete(Consts.CONFIG_PATH);
+                    InitDefaultConfig();
+                    Save();
+                }
+
                 var json = File.ReadAllText(Consts.CONFIG_PATH);
-                config = JsonConvert.DeserializeObject<Config>(json);
+                config = JsonConvert.DeserializeObject<Config>(json, jsonSettings);
+
                 InitDefaultConfig();
             }
             else
@@ -56,13 +79,13 @@ internal class ConfigManager
         var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
         if (string.IsNullOrEmpty(config.ZapretPath))
-            config.ZapretPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\zapret-winws\\winws.exe";
+            config.ZapretPath = appDirectory + "zapret\\zapret-winws\\winws.exe";
 
         if (string.IsNullOrEmpty(config.GoodbyeDpiPath))
-            config.GoodbyeDpiPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\x86_64\\goodbyedpi.exe";
+            config.GoodbyeDpiPath = appDirectory + "zapret\\x86_64\\goodbyedpi.exe";
 
         if (string.IsNullOrEmpty(config.BlockcheckPath))
-            config.BlockcheckPath = AppDomain.CurrentDomain.BaseDirectory + "zapret\\blockcheck\\blockcheck.cmd";
+            config.BlockcheckPath = appDirectory + "zapret\\blockcheck\\blockcheck.cmd";
 
         if (config.AvailableArguments.Count == 0)
         {

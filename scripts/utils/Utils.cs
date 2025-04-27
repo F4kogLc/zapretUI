@@ -1,9 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
-using ImGuiNET;
 
 internal static class Utils
 {
+    public static bool IsProcessRunning(string processName)
+    {
+        Process[] processes = Process.GetProcessesByName(processName);
+        return processes.Length > 0;
+    }
+
     public static bool IsRunAsAdmin()
     {
         var identity = WindowsIdentity.GetCurrent();

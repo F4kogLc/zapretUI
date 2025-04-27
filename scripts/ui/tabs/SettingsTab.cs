@@ -31,7 +31,7 @@ internal class SettingsTab : ITab
     {
         ImGuiUtils.CenterUIElement(120);
 
-        if (ImGui.Button("Start Zapret", new Vector2(120, 30)))
+        if (ImGui.Button("Run Zapret", new Vector2(120, 30)))
         {
             if (!Utils.IsRunAsAdmin())
             {
@@ -39,12 +39,15 @@ internal class SettingsTab : ITab
                 Utils.RestartAsAdmin();
                 return;
             }
+
+            SearchDuplicateProcesses();
+
             processLauncher.RunAntiZapret();
         }
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Start GDBYDPI", new Vector2(120, 30)))
+        if (ImGui.Button("Run GoodbyeDPI", new Vector2(120, 30)))
         {
             if (!Utils.IsRunAsAdmin())
             {
@@ -52,12 +55,15 @@ internal class SettingsTab : ITab
                 Utils.RestartAsAdmin();
                 return;
             }
+
+            SearchDuplicateProcesses();
+
             processLauncher.RunGoodbyeDPI();
         }
 
         ImGuiUtils.CenterUIElement(60);
 
-        if (ImGui.Button("Start Blockcheck", new Vector2(120, 30)))
+        if (ImGui.Button("Run Blockcheck", new Vector2(120, 30)))
         {
             if (!Utils.IsRunAsAdmin())
             {
@@ -65,10 +71,26 @@ internal class SettingsTab : ITab
                 Utils.RestartAsAdmin();
                 return;
             }
+
+            SearchDuplicateProcesses();
+
             processLauncher.RunBlockcheck();
         }
+        ImGuiUtils.Tooltip("После закрытия окна с блокчеком - успешные аргументы будут скопированы во вкладку Console\n\nAfter closing the blockcheck - successful arguments will be copied to the Console tab");
 
         ImGui.Separator();
+    }
+
+    void SearchDuplicateProcesses()
+    {
+        if (Utils.IsProcessRunning("winws"))
+            Console.WriteLine("winws is already running, close it");
+
+        if (Utils.IsProcessRunning("goodbyedpi"))
+            Console.WriteLine("goodbyedpi is already running, close it");
+
+        if (Utils.IsProcessRunning("WinDivert64"))
+            Console.WriteLine("WinDivert64 is already running, close it");
     }
 
     void RenderConfigControls()
