@@ -20,6 +20,18 @@
 - Quick testing of different bypass strategies
 - Output of successful strategies from the blockcheck
 
+# Плюсы
+- Удобное переключение стратегий обхода
+- Удобное редактирование стратегий обхода
+- Быстрое тестирование различных стратегий обхода
+- Вывод успешных стратегий из блокчека
+
+# Features
+- Convenient switching of bypass strategies
+- Convenient editing of bypass strategies
+- Quick testing of different bypass strategies
+- Output of successful strategies from the blockcheck
+
 # Известные проблемы
 1. Если zapret не запускается - нужно избавиться от процессов WinDivert и winws
 
