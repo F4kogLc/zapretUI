@@ -22,6 +22,11 @@
     <None Remove="Roboto.ttf" />
     <None Remove="zapret\cygwin1.dll" />
     <None Remove="zapret\elevator.exe" />
+    <None Remove="zapret\ipset-cloudflare.txt" />
+    <None Remove="zapret\list-discord.txt" />
+    <None Remove="zapret\list-general.txt" />
+    <None Remove="zapret\quic_initial_www_google_com.bin" />
+    <None Remove="zapret\tls_clienthello_www_google_com.bin" />
     <None Remove="zapret\zapret-winws\files\list-youtube.txt" />
     <None Remove="zapret\zapret-winws\files\quic_initial_www_google_com.bin" />
     <None Remove="zapret\killall.exe" />
@@ -45,6 +50,21 @@
 
   <ItemGroup>
     <Content Include="fonts\roboto.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\ipset-cloudflare.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\list-discord.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\list-general.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\quic_initial_www_google_com.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zapret\tls_clienthello_www_google_com.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="zapret\zapret-winws\cygwin1.dll">

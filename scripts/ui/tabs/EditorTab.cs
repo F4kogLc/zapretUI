@@ -10,6 +10,11 @@ internal class EditorTab : ITab
     string newFeatureArgs = "";
     string newFeatureTooltip = "";
 
+    // arg editor
+    float inputHeight = 250f;
+    const float minHeight = 50f;
+    const float maxHeight = 500f;
+
     public EditorTab(ConfigManager configManager)
     {
         this.configManager = configManager;
@@ -57,7 +62,31 @@ internal class EditorTab : ITab
         ImGui.InputText("##NameInput", ref newFeatureName, 256);
 
         ImGui.Text("Arguments");
-        ImGui.InputTextMultiline("##ArgumentsInput", ref newFeatureArgs, 65536, new Vector2(-1, 250));
+        if (ImGui.BeginChild("##InputContainer", new Vector2(-1, inputHeight), ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar))
+        {
+            ImGui.InputTextMultiline(
+                "##ArgumentsInput",
+                ref newFeatureArgs,
+                65536,
+                new Vector2(-1, ImGui.GetContentRegionAvail().Y)
+            );
+        }
+        ImGui.EndChild();
+
+        ImGui.InvisibleButton("##ResizeInput", new Vector2(-1, 8));
+
+        if (ImGui.IsItemActive())
+        {
+            inputHeight += ImGui.GetIO().MouseDelta.Y;
+            inputHeight = Math.Clamp(inputHeight, minHeight, maxHeight);
+        }
+
+        if (ImGui.IsItemHovered() || ImGui.IsItemActive())
+        {
+            ImGui.SetMouseCursor(ImGuiMouseCursor.ResizeNS);
+        }
+
+        ImGuiUtils.CustomSeparator();
 
         ImGui.Text("Tooltip");
         ImGui.InputTextMultiline("##TooltipInput", ref newFeatureTooltip, 2048, new Vector2(-1, ImGui.GetTextLineHeight() * 3));

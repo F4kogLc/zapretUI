@@ -1,5 +1,30 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
+internal class MyJsonConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        => throw new NotImplementedException();
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        var appDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+
+        var value = (string)reader.Value;
+
+        return value
+            .Replace(Consts.ZAPRET_PREFIX, Path.Combine(appDirectory, Consts.ZAPRET_POSTFIX))
+            .Replace(Consts.GOODBYE_PREFIX, Path.Combine(appDirectory, Consts.GOODBYE_POSTFIX))
+            .Replace(Consts.BLOCKCHECK_PREFIX, Path.Combine(appDirectory, Consts.BLOCKCHECK_POSTFIX))
+            .Replace(Consts.FAKE_TLS_PREFIX, Path.Combine(appDirectory, Consts.FAKE_TLS_POSTFIX))
+            .Replace(Consts.FAKE_QUIC_PREFIX, Path.Combine(appDirectory, Consts.FAKE_QUIC_POSTFIX))
+            .Replace(Consts.IPSET_PREFIX, Path.Combine(appDirectory, Consts.IPSET_POSTFIX))
+            .Replace(Consts.HOSTLIST_PREFIX, Path.Combine(appDirectory, Consts.HOSTLIST_POSTFIX));
+    }
+
+    public override bool CanConvert(Type objectType) => objectType == typeof(string);
+}
 
 internal class ConfigManager
 {
@@ -16,10 +41,11 @@ internal class ConfigManager
         autoStartManager = new AutoStartManager();
         jsonSettings = new JsonSerializerSettings
         {
-            MaxDepth = 32,
+            MaxDepth = 128,
             TypeNameHandling = TypeNameHandling.None,
             MissingMemberHandling = MissingMemberHandling.Error,
             NullValueHandling = NullValueHandling.Ignore,
+            Converters = { new MyJsonConverter() },
             ContractResolver = new DefaultContractResolver
             {
                 IgnoreSerializableInterface = true
@@ -76,16 +102,16 @@ internal class ConfigManager
 
     void InitDefaultConfig()
     {
-        var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        var appDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
         if (string.IsNullOrEmpty(config.ZapretPath))
-            config.ZapretPath = appDirectory + "zapret\\zapret-winws\\winws.exe";
+            config.ZapretPath = "%ZAPRET_PATH%";
 
         if (string.IsNullOrEmpty(config.GoodbyeDpiPath))
-            config.GoodbyeDpiPath = appDirectory + "zapret\\x86_64\\goodbyedpi.exe";
+            config.GoodbyeDpiPath = "%GOODBYE_PATH%";
 
         if (string.IsNullOrEmpty(config.BlockcheckPath))
-            config.BlockcheckPath = appDirectory + "zapret\\blockcheck\\blockcheck.cmd";
+            config.BlockcheckPath = "%BLOCKCHECK_PATH%";
 
         if (config.AvailableArguments.Count == 0)
         {
@@ -93,9 +119,14 @@ internal class ConfigManager
             config.AvailableArguments.Add("--wf-tcp=80,443");
             config.AvailableArguments.Add("--wf-udp=443,50000-50099");
             config.AvailableArguments.Add("--wf-l3=ipv4");
-            config.AvailableArguments.Add("--filter-tcp=80,443");
-            config.AvailableArguments.Add("--filter-udp=80,443,50000-50099");
+            config.AvailableArguments.Add("--filter-tcp=80");
+            config.AvailableArguments.Add("--filter-tcp=443");
+            config.AvailableArguments.Add("--filter-udp=80");
+            config.AvailableArguments.Add("--filter-udp=443");
+            config.AvailableArguments.Add("--filter-udp=50000-50099");
             config.AvailableArguments.Add("--filter-l7=discord,stun");
+            config.AvailableArguments.Add("--filter-l7=discord");
+            config.AvailableArguments.Add("--filter-l7=stun");
             config.AvailableArguments.Add("--wssize 1:6");
             config.AvailableArguments.Add("--dpi-desync-ttl=1");
             config.AvailableArguments.Add("--dpi-desync-ttl=2");
@@ -109,6 +140,8 @@ internal class ConfigManager
             config.AvailableArguments.Add("--dpi-desync-autottl=5");
             config.AvailableArguments.Add("--dpi-desync-any-protocol=1");
             config.AvailableArguments.Add("--dpi-desync-cutoff=n5");
+            config.AvailableArguments.Add("--dpi-desync-repeats=5");
+            config.AvailableArguments.Add("--dpi-desync-repeats=8");
             config.AvailableArguments.Add("--dpi-desync-repeats=10");
             config.AvailableArguments.Add("--dpi-desync=fake");
             config.AvailableArguments.Add("--dpi-desync=fakedsplit");
@@ -135,9 +168,10 @@ internal class ConfigManager
             config.AvailableArguments.Add("--dpi-desync-split-pos=1,sniext+1,host+1,midsld-2,midsld,midsld+2,endhost-1");
             config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,rndsni,padencap");
             config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com");
-            config.AvailableArguments.Add($@"--dpi-desync-fake-tls=""{appDirectory + "zapret\\blockcheck\\files\\fake\\tls_clienthello_www_google_com.bin"}""");
-            config.AvailableArguments.Add($@"--dpi-desync-fake-quic=""{appDirectory + "zapret\\zapret-winws\\files\\quic_initial_www_google_com.bin"}""");
-            config.AvailableArguments.Add($@"--hostlist=""{appDirectory + "zapret\\zapret-winws\\files\\list-youtube.txt"}""");
+            config.AvailableArguments.Add($@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}""");
+            config.AvailableArguments.Add($@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""");
+            config.AvailableArguments.Add($@"--ipset=""{Consts.IPSET_PREFIX}""");
+            config.AvailableArguments.Add($@"--hostlist=""{Consts.HOSTLIST_PREFIX}""");
         }
 
         if (config.Features.Count == 0)
@@ -147,7 +181,6 @@ internal class ConfigManager
                 new()
                 {
                     Name = "Bypass Method #1",
-                    IsEnabled = true,
                     Arguments =
                     [
                         "--wf-tcp=80,443",
@@ -159,7 +192,7 @@ internal class ConfigManager
                         "--dpi-desync-split-pos=method+2",
                         "--new",
                         "--dpi-desync=syndata,multidisorder",
-                        $@"--dpi-desync-fake-quic=""{appDirectory + "zapret\\zapret-winws\\files\\quic_initial_www_google_com.bin"}""",
+                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
                         "--dpi-desync-split-pos=method+2",
                         "--new",
                         "--dpi-desync=multidisorder",
@@ -171,6 +204,7 @@ internal class ConfigManager
                 new()
                 {
                     Name = "Bypass Method #2",
+                    IsEnabled = true,
                     Arguments =
                     [
                         "--wf-tcp=80,443",
@@ -204,68 +238,117 @@ internal class ConfigManager
                 new()
                 {
                     Name = "Bypass Method #4",
-                    Arguments = [$@"--wf-tcp=80,443 --wf-udp=443,50000-50099 --filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig --new --filter-tcp=443 --hostlist=""{appDirectory + "zapret\\zapret-winws\\files\\list-youtube.txt"}"" --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --new --filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig --new --filter-tcp=443 --hostlist=""{appDirectory + "zapret\\zapret-winws\\files\\list-youtube.txt"}"" --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=""{appDirectory + "zapret\\files\\quic_initial_www_google_com.bin"}"" --new --filter-tcp=443 --dpi-desync=fake --dpi-desync-repeats=11 --new --filter-udp=50000-50099 --filter-l7=discord,stun --dpi-desync=fake"],
+                    Arguments =
+                    [
+                        "--wf-tcp=80,443",
+                        "--wf-udp=443,50000-50100",
+                        "--filter-udp=443",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--new",
+                        "--filter-udp=50000-50100",
+                        "--filter-l7=discord,stun",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        "--new",
+                        "--filter-tcp=80",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-autottl=2",
+                        "--dpi-desync-fooling=md5sig",
+                        "--new",
+                        "--filter-tcp=443",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=split",
+                        "--dpi-desync-split-pos=1",
+                        "--dpi-desync-autottl",
+                        "--dpi-desync-repeats=8",
+                        "--dpi-desync-fooling=badseq",
+                        "--new",
+                        "--filter-udp=443",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--new",
+                        "--filter-tcp=80",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-autottl=2",
+                        "--dpi-desync-fooling=md5sig",
+                        "--new",
+                        "--filter-tcp=443",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=split",
+                        "--dpi-desync-split-pos=1",
+                        "--dpi-desync-autottl",
+                        "--dpi-desync-repeats=8",
+                        "--dpi-desync-fooling=badseq",
+                    ],
+                    Tooltip = "Ютуб работает, дискорд не проверял (для обхода бана - нужно вносить адреса сайтов в list-general)"
+                },
+                new()
+                {
+                    Name = "Bypass Method #5",
+                    Arguments =
+                    [
+                        "--wf-tcp=80,443",
+                        "--wf-udp=443,50000-50100",
+                        "--filter-udp=443",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--new",
+                        "--filter-udp=50000-50100",
+                        "--filter-l7=discord,stun",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        "--new",
+                        "--filter-tcp=80",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-autottl=2",
+                        "--dpi-desync-fooling=md5sig",
+                        "--new",
+                        "--filter-tcp=443",
+                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-split-pos=1",
+                        "--dpi-desync-autottl",
+                        "--dpi-desync-repeats=6",
+                        "--dpi-desync-fooling=md5sig",
+                        $@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}""",
+                        "--new",
+                        "--filter-udp=443",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=6",
+                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--new",
+                        "--filter-tcp=80",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-autottl=2",
+                        "--dpi-desync-fooling=md5sig",
+                        "--new",
+                        "--filter-tcp=443",
+                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--dpi-desync=fake,split2",
+                        "--dpi-desync-split-pos=1",
+                        "--dpi-desync-repeats=6",
+                        "--dpi-desync-fooling=md5sig",
+                        $@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}"""
+                    ],
+                    Tooltip = "У меня не работает (для обхода бана - нужно вносить адреса сайтов в list-general)",
+                },
+                new()
+                {
+                    Name = "Bypass Method #6",
+                    Arguments = [$@"--wf-tcp=80,443 --wf-udp=443,50000-50099 --filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig --new --filter-tcp=443 --hostlist=""{Consts.HOSTLIST_PREFIX}"" --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --new --filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig --new --filter-tcp=443 --hostlist=""{Consts.HOSTLIST_PREFIX}"" --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}"" --new --filter-tcp=443 --dpi-desync=fake --dpi-desync-repeats=11 --new --filter-udp=50000-50099 --filter-l7=discord,stun --dpi-desync=fake"],
                     Tooltip = "Не работает"
-                },
-                new()
-                {
-                    Name = "--dpi-desync=fake",
-                    Arguments = ["--dpi-desync=fake"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync=fakeddisorder",
-                    Arguments = ["--dpi-desync=fakeddisorder"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync=multidisorder",
-                    Arguments = ["--dpi-desync=multidisorder"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync-fooling=md5sig",
-                    Arguments = ["--dpi-desync-fooling=md5sig"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync-fooling=badseq,md5sig",
-                    Arguments = ["--dpi-desync-fooling=badseq,md5sig"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync-ttl=1",
-                    Arguments = ["--dpi-desync-ttl=1"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync-autottl=5",
-                    Arguments = ["--dpi-desync-autottl=5"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--dpi-desync-split-pos=method+2",
-                    Arguments = ["--dpi-desync-split-pos=method+2"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--wssize 1:6",
-                    Arguments = ["--wssize 1:6"],
-                    Tooltip = ""
-                },
-                new()
-                {
-                    Name = "--new",
-                    Arguments = ["--new"],
-                    Tooltip = ""
                 },
             ];
         }

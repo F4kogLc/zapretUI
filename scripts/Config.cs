@@ -3,6 +3,7 @@
     public bool ShowConsole = true;
     public bool AutoQuit = false;
     public bool RunAtStartup = false;
+    public bool AlwaysOnTop = true;
     public float BackgroundAlpha = 0.8f;
     public float FontScale = 1f;
     public string ZapretPath = "";

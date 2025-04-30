@@ -16,6 +16,7 @@ internal class Program : Overlay
             new EditorTab(configManager),
             new ConsoleTab(),
             new HelpTab(),
+            new LinksTab(),
             new ExitTab()
         );
     }
@@ -39,7 +40,7 @@ internal class Program : Overlay
         SetWindowStyle();
         SetWindowPos();
 
-        ImGui.Begin($"Anti Zapret - {Consts.VERSION}");
+        ImGui.Begin($"Zapret UI - {Consts.VERSION}");
 
         tabSystem.Render();
 

@@ -3,20 +3,15 @@ using System.Diagnostics;
 
 internal class AutoStartManager
 {
-    const string RegistryKeyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    readonly string registryKeyPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     readonly string appName = "AntiZapret";
-    readonly string exePath;
-
-    public AutoStartManager()
-    {
-        exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Process.GetCurrentProcess().MainModule.FileName);
-    }
+    readonly string exePath = $"\"{Process.GetCurrentProcess().MainModule.FileName}\"";
 
     public bool IsAutoStartEnabled()
     {
         try
         {
-            var key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath);
+            var key = Registry.CurrentUser.OpenSubKey(registryKeyPath);
             return key?.GetValue(appName)?.ToString() == exePath;
         }
         catch
@@ -29,7 +24,7 @@ internal class AutoStartManager
     {
         try
         {
-            var key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath);
+            var key = Registry.CurrentUser.CreateSubKey(registryKeyPath);
 
             if (enable)
             {

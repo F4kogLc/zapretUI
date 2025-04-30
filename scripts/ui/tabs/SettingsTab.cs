@@ -35,12 +35,11 @@ internal class SettingsTab : ITab
         {
             if (!Utils.IsRunAsAdmin())
             {
-                Console.WriteLine("Run as admin");
                 Utils.RestartAsAdmin();
                 return;
             }
 
-            SearchDuplicateProcesses();
+            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
 
             processLauncher.RunAntiZapret();
         }
@@ -51,12 +50,11 @@ internal class SettingsTab : ITab
         {
             if (!Utils.IsRunAsAdmin())
             {
-                Console.WriteLine("Run as admin");
                 Utils.RestartAsAdmin();
                 return;
             }
 
-            SearchDuplicateProcesses();
+            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
 
             processLauncher.RunGoodbyeDPI();
         }
@@ -67,30 +65,17 @@ internal class SettingsTab : ITab
         {
             if (!Utils.IsRunAsAdmin())
             {
-                Console.WriteLine("Run as admin");
                 Utils.RestartAsAdmin();
                 return;
             }
 
-            SearchDuplicateProcesses();
+            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
 
             processLauncher.RunBlockcheck();
         }
         ImGuiUtils.Tooltip("После закрытия окна с блокчеком - успешные аргументы будут скопированы во вкладку Console\n\nAfter closing the blockcheck - successful arguments will be copied to the Console tab");
 
         ImGui.Separator();
-    }
-
-    void SearchDuplicateProcesses()
-    {
-        if (Utils.IsProcessRunning("winws"))
-            Console.WriteLine("winws is already running, close it");
-
-        if (Utils.IsProcessRunning("goodbyedpi"))
-            Console.WriteLine("goodbyedpi is already running, close it");
-
-        if (Utils.IsProcessRunning("WinDivert64"))
-            Console.WriteLine("WinDivert64 is already running, close it");
     }
 
     void RenderConfigControls()
@@ -101,6 +86,7 @@ internal class SettingsTab : ITab
         {
             configManager.Save();
         }
+        ImGuiUtils.Tooltip("Сохранить текущие настройки в config.json");
 
         ImGui.SameLine();
 
@@ -108,6 +94,7 @@ internal class SettingsTab : ITab
         {
             configManager.Load();
         }
+        ImGuiUtils.Tooltip("Загрузить настройки из config.json");
 
         ImGui.Separator();
     }
@@ -153,6 +140,18 @@ internal class SettingsTab : ITab
 
         ImGui.Checkbox("Auto Quit", ref configManager.Config.AutoQuit);
         ImGuiUtils.Tooltip("Авто выход при запуске запрета\n\nAuto quit when zapret is started");
+
+        var alwaysOnTop = configManager.Config.AlwaysOnTop;
+        if (ImGui.Checkbox("Always on Top", ref alwaysOnTop))
+        {
+            configManager.Config.AlwaysOnTop = alwaysOnTop;
+
+            if (alwaysOnTop)
+                WinAPI.SetWindowPos(WinAPI.GetForegroundWindow(), WinAPI.HWND_TOPMOST, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE);
+            else
+                WinAPI.SetWindowPos(WinAPI.GetForegroundWindow(), WinAPI.HWND_NOTOPMOST, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE);
+        }
+        ImGuiUtils.Tooltip("Отображение программы поверх всего");
 
         var runAtStartup = configManager.Config.RunAtStartup;
         if (ImGui.Checkbox("Run at Windows startup", ref runAtStartup))

@@ -1,12 +1,39 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Security.Principal;
 
 internal static class Utils
 {
+    public static void OpenURL(string url)
+        => Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+
     public static bool IsProcessRunning(string processName)
+        => Process.GetProcessesByName(processName).Length > 0;
+
+    public static void KillProcess(string processName)
+        => KillProcess(new[] { processName });
+
+    public static void KillProcess(params string[] processNames)
     {
-        Process[] processes = Process.GetProcessesByName(processName);
-        return processes.Length > 0;
+        foreach (var process in processNames.SelectMany(name => Process.GetProcessesByName(name)))
+        {
+            try
+            {
+                process.Kill();
+            }
+            catch (Win32Exception ex)
+            {
+                Console.WriteLine($"KillProcess error: {ex.Message}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"{process.ProcessName} already killed: {ex.Message}");
+            }
+            finally
+            {
+                process.Dispose();
+            }
+        }
     }
 
     public static bool IsRunAsAdmin()

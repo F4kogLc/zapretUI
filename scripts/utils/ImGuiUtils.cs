@@ -28,6 +28,20 @@ internal static class ImGuiUtils
         ImGui.SetCursorPosX((availableWidth - totalWidth) * 0.5f);
     }
 
+    public static void CustomSeparator()
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var rectMin = ImGui.GetItemRectMin();
+        var rectMax = ImGui.GetItemRectMax();
+
+        drawList.AddLine(
+            new Vector2(rectMin.X, rectMin.Y + 3),
+            new Vector2(rectMax.X, rectMin.Y + 3),
+            ImGui.GetColorU32(ImGuiCol.Separator),
+            2f
+        );
+    }
+
     public static void Tooltip(string text)
     {
         if (ImGui.IsItemHovered() && !string.IsNullOrEmpty(text))
