@@ -147,9 +147,9 @@ internal class SettingsTab : ITab
             configManager.Config.AlwaysOnTop = alwaysOnTop;
 
             if (alwaysOnTop)
-                WinAPI.SetWindowPos(WinAPI.GetForegroundWindow(), WinAPI.HWND_TOPMOST, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE);
+                WinAPI.SetTopWindow(true);
             else
-                WinAPI.SetWindowPos(WinAPI.GetForegroundWindow(), WinAPI.HWND_NOTOPMOST, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE);
+                WinAPI.SetTopWindow(false);
         }
         ImGuiUtils.Tooltip("Отображение программы поверх всего");
 
@@ -162,19 +162,24 @@ internal class SettingsTab : ITab
         ImGuiUtils.Tooltip("Запускать программу при старте винды");
 
         ImGui.Text("Zapret Path");
+        ImGui.SetNextItemWidth(-1);
         ImGui.InputText("##ZapretInput", ref configManager.Config.ZapretPath, 256);
 
         ImGui.Text("GoodbyeDPI Path");
+        ImGui.SetNextItemWidth(-1);
         ImGui.InputText("##GoodbyeInput", ref configManager.Config.GoodbyeDpiPath, 256);
 
         ImGui.Text("Blockcheck Path");
+        ImGui.SetNextItemWidth(-1);
         ImGui.InputText("##BlockcheckInput", ref configManager.Config.BlockcheckPath, 256);
 
         ImGui.Text("Background Transparency");
+        ImGui.SetNextItemWidth(-1);
         ImGui.SliderFloat("##BackgroundAlpha", ref configManager.Config.BackgroundAlpha, 0.1f, 1.0f, "%.2f");
         ImGuiUtils.Tooltip("Прозрачность окна");
 
         ImGui.Text("Font Scale");
+        ImGui.SetNextItemWidth(-1);
         ImGui.SliderFloat("##FontScale", ref configManager.Config.FontScale, 0.8f, 2.0f, "%.2f");
         ImGuiUtils.Tooltip("Размер шрифта");
     }

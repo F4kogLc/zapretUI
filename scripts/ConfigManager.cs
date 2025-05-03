@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 internal class MyJsonConverter : JsonConverter
@@ -9,7 +8,7 @@ internal class MyJsonConverter : JsonConverter
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        var appDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        var appDirectory = Utils.GetAppPath();
 
         var value = (string)reader.Value;
 
@@ -34,9 +33,12 @@ internal class ConfigManager
 
     readonly AutoStartManager autoStartManager;
     readonly JsonSerializerSettings jsonSettings;
+    readonly Notification notification;
 
-    public ConfigManager()
+    public ConfigManager(Notification notification)
     {
+        this.notification = notification;
+
         config = new Config();
         autoStartManager = new AutoStartManager();
         jsonSettings = new JsonSerializerSettings
@@ -52,6 +54,17 @@ internal class ConfigManager
             }
         };
         Load();
+        CheckNewVersion();
+    }
+
+    async void CheckNewVersion()
+    {
+        if (await VersionChecker.IsUpdateAvailable())
+        {
+            //var latest = await VersionChecker.GetLatestGitHubVersion();
+
+            notification.AddNotification("Available new version! Get it from GitHub");
+        }
     }
 
     public void Load()
@@ -71,6 +84,10 @@ internal class ConfigManager
 
                 var json = File.ReadAllText(Consts.CONFIG_PATH);
                 config = JsonConvert.DeserializeObject<Config>(json, jsonSettings);
+
+                UpdateWindow();
+
+                notification.AddNotification("Loaded");
 
                 InitDefaultConfig();
             }
@@ -93,6 +110,8 @@ internal class ConfigManager
             var json = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(Consts.CONFIG_PATH, json);
             autoStartManager.SetAutoStart(Config.RunAtStartup);
+
+            notification.AddNotification("Saved");
         }
         catch (Exception ex)
         {
@@ -100,9 +119,18 @@ internal class ConfigManager
         }
     }
 
+    // страшный костыль
+    async void UpdateWindow()
+    {
+        await Task.Delay(1000);
+
+        if (!config.AlwaysOnTop)
+            WinAPI.SetTopWindow(false);
+    }
+
     void InitDefaultConfig()
     {
-        var appDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        var appDirectory = Utils.GetAppPath();
 
         if (string.IsNullOrEmpty(config.ZapretPath))
             config.ZapretPath = "%ZAPRET_PATH%";
@@ -357,5 +385,6 @@ internal class ConfigManager
     void HandleConfigError(string message, Exception ex)
     {
         Console.WriteLine($"{message}: {ex.Message}");
+        notification.AddNotification($"{message}: {ex.Message}");
     }
 }

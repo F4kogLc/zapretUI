@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-
-internal class Consts
+﻿internal class Consts
 {
-    public static readonly string VERSION = "1.3.0";
+    public static readonly Version VERSION = new(1, 4, 0);
 
     public static readonly string ZAPRET_PREFIX = "%ZAPRET_PATH%";
     public static readonly string ZAPRET_POSTFIX = "zapret\\zapret-winws\\winws.exe";
@@ -25,7 +23,7 @@ internal class Consts
     public static readonly string HOSTLIST_PREFIX = "%HOSTLIST%";
     public static readonly string HOSTLIST_POSTFIX = "zapret\\list-general.txt";
 
-    public static readonly string CONFIG_PATH = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\config.json";
+    public static readonly string CONFIG_PATH = Path.Combine(Utils.GetAppPath(), "config.json");
 
-    public static readonly string FONT_PATH = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + "\\fonts\\roboto.ttf";
+    public static readonly string FONT_PATH = Path.Combine(Utils.GetAppPath(), "fonts", "roboto.ttf");
 }

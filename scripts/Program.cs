@@ -6,10 +6,13 @@ internal class Program : Overlay
 {
     readonly ConfigManager configManager;
     readonly TabSystem tabSystem;
+    readonly Notification notification;
 
-    Program() : base(1920, 1080)
+    Program() : base(WinAPI.GetScreenWidth(), WinAPI.GetScreenHeight())
     {
-        configManager = new ConfigManager();
+        notification = new Notification();
+
+        configManager = new ConfigManager(notification);
 
         tabSystem = new TabSystem(
             new SettingsTab(configManager),
@@ -41,12 +44,13 @@ internal class Program : Overlay
         SetWindowPos();
 
         ImGui.Begin($"Zapret UI - {Consts.VERSION}");
-
         tabSystem.Render();
 
-        ResetWindowStyle();
-
         ImGui.End();
+
+        notification.Render();
+
+        ResetWindowStyle();
     }
 
     void SetWindowPos()

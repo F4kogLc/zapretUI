@@ -4,6 +4,12 @@ using System.Security.Principal;
 
 internal static class Utils
 {
+    public static string GetAppPath()
+        => Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+
+    public static IntPtr GetProcessHandle()
+        => Process.GetCurrentProcess().MainWindowHandle;
+
     public static void OpenURL(string url)
         => Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
 

@@ -6,7 +6,8 @@ internal class ArgumentChainEditor : IElement
     readonly ConfigManager configManager;
 
     int selectedAvailableArgIndex = -1;
-
+    bool showArgs = false;
+    string searchFilter = "";
     float inputHeight = 250f;
     const float minHeight = 50f;
     const float maxHeight = 500f;
@@ -22,16 +23,28 @@ internal class ArgumentChainEditor : IElement
 
         var availableArgs = configManager.Config.AvailableArguments.ToArray();
 
-        if (ImGui.Combo("##Chain", ref selectedAvailableArgIndex, availableArgs, availableArgs.Length))
-        {
-            // при выборе аргумента
-        }
+        if (ImGui.Button("Show Arguments"))
+            showArgs = !showArgs;
 
-        ImGui.SameLine();
-
-        if (ImGui.Button("Add to Chain"))
+        if (showArgs)
         {
-            AddToChain();
+            ImGui.Begin("Arguments", ImGuiWindowFlags.NoTitleBar);
+
+            ImGui.SetNextItemWidth(-1);
+            ImGui.InputTextWithHint("##ArgumentSearch", "Search...", ref searchFilter, 100);
+
+            for (int i = 0; i < availableArgs.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(searchFilter) && !availableArgs[i].Contains(searchFilter, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (ImGui.Selectable(availableArgs[i]))
+                {
+                    selectedAvailableArgIndex = i;
+                    AddToChain();
+                }
+            }
+            ImGui.End();
         }
 
         ImGui.SameLine();
@@ -133,11 +146,11 @@ internal class ArgumentChainEditor : IElement
 
     void MakeNewFeature()
     {
-        if (selectedAvailableArgIndex >= 0)
+        if (configManager.Config.SelectedArgumentsChain.Count > 0)
         {
             var feature = new Feature()
             {
-                Name = "Bypass Method #" + configManager.Config.Features.Count,
+                Name = "Bypass Method #" + (configManager.Config.Features.Count + 1),
                 Arguments = configManager.Config.SelectedArgumentsChain.ToArray(),
             };
 
