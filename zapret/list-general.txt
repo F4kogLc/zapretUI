@@ -72,4 +72,3 @@ scontent.cdninstagram.com
 edge-chat.instagram.com
 graph.instagram.com
 gateway.instagram.com
-twitter.com
