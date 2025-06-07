@@ -4,8 +4,12 @@
 <details>
 <summary>Скриншоты</summary>
   
+![Recording 2025-05-03 132106](https://github.com/user-attachments/assets/970a215f-f79a-4ef7-8ff1-1cb38c99d12a)
+  
 ![image](https://github.com/user-attachments/assets/d48b3bd2-7981-47ce-848b-83f464450253)
+
 ![image](https://github.com/user-attachments/assets/6ad5c966-3e69-41e7-a69d-07ae55c2496b)
+
 </details>
 
 # Как этим пользоваться
