@@ -66,10 +66,18 @@
             {
                 var processedLine = line.TrimStart();
 
-                if (processedLine.StartsWith("- checking winws "))
+                var winwsIndex = processedLine.IndexOf("winws");
+
+                if (winwsIndex != -1)
                 {
-                    processedLine = processedLine.Substring("- checking winws ".Length);
-                    NewLogMessage?.Invoke(processedLine);
+                    var startIndex = winwsIndex + "winws".Length;
+
+                    if (startIndex < processedLine.Length && processedLine[startIndex] == ' ')
+                        startIndex++;
+
+                    var result = processedLine.Substring(startIndex);
+
+                    NewLogMessage?.Invoke(result);
                 }
 
                 expectNextLine = false;

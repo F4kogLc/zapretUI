@@ -11,12 +11,12 @@
 # Как этим пользоваться
 1. Скачать архив ``https://github.com/bol-van/zapret-win-bundle/archive/refs/heads/master.zip`` и если нужно ``https://github.com/ValdikSS/GoodbyeDPI/releases/download/0.2.3rc3/goodbyedpi-0.2.3rc3-2.zip``
 2. Содержимое ``zapret-win-bundle-master`` поместить в папку ``zapret`` в папке с программой
-3. Запустить программу и нажать кнопку ``Run Zapret``
+3. Запустить программу, выбрать одну уже готовую стратегию обхода и нажать кнопку ``Run Zapret``
 
 # How to use it
 1. Download archive ``https://github.com/bol-van/zapret-win-bundle/archive/refs/heads/master.zip`` and if necessary ``https://github.com/ValdikSS/GoodbyeDPI/releases/download/0.2.3rc3/goodbyedpi-0.2.3rc3-2.zip``
 2. Place the contents of the ``zapret-win-bundle-master`` in the ``zapret`` folder in the program folder
-3. Run the program and click the ``Run Zapret`` button
+3. Launch the program, select one ready-made bypass strategy and click the ``Run Zapret`` button
 
 # Плюсы
 - Удобное переключение стратегий обхода
