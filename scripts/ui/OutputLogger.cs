@@ -44,13 +44,15 @@ internal class OutputLogger : IElement
 
         ImGui.BeginChild("ScrollingRegion", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()));
 
-        var lines = logBuffer.ToString().Split('\n');
-        foreach (var line in lines)
-        {
-            ImGui.PushTextWrapPos(ImGui.GetContentRegionAvail().X);
-            ImGui.TextWrapped(line);
-            ImGui.PopTextWrapPos();
-        }
+        var logText = logBuffer.ToString();
+
+        ImGui.InputTextMultiline(
+            "##LogOutput",
+            ref logText,
+            100000,
+            new Vector2(-1, -1),
+            ImGuiInputTextFlags.ReadOnly
+        );
 
         if (scrollToBottom)
         {

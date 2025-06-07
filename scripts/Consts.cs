@@ -1,6 +1,6 @@
 ﻿internal class Consts
 {
-    public static readonly Version VERSION = new(1, 4, 0);
+    public static readonly Version VERSION = new(1, 4, 2);
 
     public static readonly string ZAPRET_PREFIX = "%ZAPRET_PATH%";
     public static readonly string ZAPRET_POSTFIX = "zapret\\zapret-winws\\winws.exe";
