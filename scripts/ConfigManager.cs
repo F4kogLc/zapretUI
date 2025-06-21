@@ -3,23 +3,53 @@ using Newtonsoft.Json.Serialization;
 
 internal class MyJsonConverter : JsonConverter
 {
+    readonly string appDirectory;
+
+    public MyJsonConverter()
+    {
+        appDirectory = Utils.GetAppPath();
+    }
+
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        => throw new NotImplementedException();
+    {
+        if (value is string stringValue)
+        {
+            var result = stringValue;
+
+            foreach (var replacement in Consts.PATH_REPLACEMENTS)
+            {
+                var fullPath = Path.Combine(appDirectory, replacement.Value);
+                var path2 = $"\"{fullPath}\"";
+                result = result.Replace(path2, replacement.Key);
+                result = result.Replace(fullPath, replacement.Key);
+            }
+
+            writer.WriteValue(result);
+        }
+        else
+        {
+            writer.WriteValue(value);
+        }
+    }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        var appDirectory = Utils.GetAppPath();
+        if (reader.Value is not string value)
+            return reader.Value;
 
-        var value = (string)reader.Value;
+        var result = value;
 
-        return value
-            .Replace(Consts.ZAPRET_PREFIX, Path.Combine(appDirectory, Consts.ZAPRET_POSTFIX))
-            .Replace(Consts.GOODBYE_PREFIX, Path.Combine(appDirectory, Consts.GOODBYE_POSTFIX))
-            .Replace(Consts.BLOCKCHECK_PREFIX, Path.Combine(appDirectory, Consts.BLOCKCHECK_POSTFIX))
-            .Replace(Consts.FAKE_TLS_PREFIX, Path.Combine(appDirectory, Consts.FAKE_TLS_POSTFIX))
-            .Replace(Consts.FAKE_QUIC_PREFIX, Path.Combine(appDirectory, Consts.FAKE_QUIC_POSTFIX))
-            .Replace(Consts.IPSET_PREFIX, Path.Combine(appDirectory, Consts.IPSET_POSTFIX))
-            .Replace(Consts.HOSTLIST_PREFIX, Path.Combine(appDirectory, Consts.HOSTLIST_POSTFIX));
+        foreach (var replacement in Consts.PATH_REPLACEMENTS)
+        {
+            if (result.Contains(replacement.Key))
+            {
+                var fullPath = Path.Combine(appDirectory, replacement.Value);
+                var path2 = $"\"{fullPath}\"";
+                result = result.Replace(replacement.Key, path2);
+            }
+        }
+
+        return result;
     }
 
     public override bool CanConvert(Type objectType) => objectType == typeof(string);
@@ -59,11 +89,18 @@ internal class ConfigManager
 
     async void CheckNewVersion()
     {
-        if (await VersionChecker.IsUpdateAvailable())
+        try
         {
-            //var latest = await VersionChecker.GetLatestGitHubVersion();
+            if (await VersionChecker.IsUpdateAvailable())
+            {
+                //var latest = await VersionChecker.GetLatestGitHubVersion();
 
-            notification.AddNotification("Available new version! Get it from GitHub");
+                notification.AddNotification("Available new version! Get it from GitHub");
+            }
+        }
+        catch (Exception ex)
+        {
+            notification.AddNotification($"Version check failed: {ex.Message}");
         }
     }
 
@@ -80,16 +117,17 @@ internal class ConfigManager
                     File.Delete(Consts.CONFIG_PATH);
                     InitDefaultConfig();
                     Save();
+
+                    notification.AddNotification("Config file was too large and recreated");
                 }
 
                 var json = File.ReadAllText(Consts.CONFIG_PATH);
                 config = JsonConvert.DeserializeObject<Config>(json, jsonSettings);
 
                 UpdateWindow();
+                InitDefaultConfig();
 
                 notification.AddNotification("Loaded");
-
-                InitDefaultConfig();
             }
             else
             {
@@ -107,7 +145,21 @@ internal class ConfigManager
     {
         try
         {
-            var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+            var saveSettings = new JsonSerializerSettings
+            {
+                MaxDepth = 128,
+                TypeNameHandling = TypeNameHandling.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                Converters = { new MyJsonConverter() },
+                ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableInterface = true
+                },
+                Formatting = Formatting.Indented
+            };
+
+            var json = JsonConvert.SerializeObject(config, saveSettings);
+
             File.WriteAllText(Consts.CONFIG_PATH, json);
             autoStartManager.SetAutoStart(Config.RunAtStartup);
 
@@ -130,8 +182,6 @@ internal class ConfigManager
 
     void InitDefaultConfig()
     {
-        var appDirectory = Utils.GetAppPath();
-
         if (string.IsNullOrEmpty(config.ZapretPath))
             config.ZapretPath = "%ZAPRET_PATH%";
 
@@ -167,6 +217,7 @@ internal class ConfigManager
             config.AvailableArguments.Add("--dpi-desync-autottl=4");
             config.AvailableArguments.Add("--dpi-desync-autottl=5");
             config.AvailableArguments.Add("--dpi-desync-any-protocol=1");
+            config.AvailableArguments.Add("--dpi-desync-cutoff=n2");
             config.AvailableArguments.Add("--dpi-desync-cutoff=n5");
             config.AvailableArguments.Add("--dpi-desync-repeats=5");
             config.AvailableArguments.Add("--dpi-desync-repeats=8");
@@ -185,21 +236,26 @@ internal class ConfigManager
             config.AvailableArguments.Add("--dpi-desync=syndata,split2");
             config.AvailableArguments.Add("--dpi-desync=syndata,multidisorder");
             config.AvailableArguments.Add("--dpi-desync-fooling=badseq");
+            config.AvailableArguments.Add("--dpi-desync-fooling=badseq,hopbyhop2");
             config.AvailableArguments.Add("--dpi-desync-fooling=md5sig");
             config.AvailableArguments.Add("--dpi-desync-fooling=md5sig,badseq");
+            config.AvailableArguments.Add("--dpi-desync=split2");
             config.AvailableArguments.Add("--dpi-desync-split-seqovl=2");
             config.AvailableArguments.Add("--dpi-desync-split-pos=method+2");
             config.AvailableArguments.Add("--dpi-desync-split-pos=1");
             config.AvailableArguments.Add("--dpi-desync-split-pos=2");
             config.AvailableArguments.Add("--dpi-desync-split-pos=3");
+            config.AvailableArguments.Add("--dpi-desync-split-pos=midsld");
             config.AvailableArguments.Add("--dpi-desync-split-pos=1,midsld");
             config.AvailableArguments.Add("--dpi-desync-split-pos=1,sniext+1,host+1,midsld-2,midsld,midsld+2,endhost-1");
             config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,rndsni,padencap");
             config.AvailableArguments.Add("--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com");
-            config.AvailableArguments.Add($@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}""");
-            config.AvailableArguments.Add($@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""");
-            config.AvailableArguments.Add($@"--ipset=""{Consts.IPSET_PREFIX}""");
-            config.AvailableArguments.Add($@"--hostlist=""{Consts.HOSTLIST_PREFIX}""");
+            config.AvailableArguments.Add("--dpi-desync-fake-unknown-udp=%FAKE_QUIC%");
+            config.AvailableArguments.Add("--dpi-desync-fake-tls=%FAKE_TLS%");
+            config.AvailableArguments.Add("--dpi-desync-fake-quic=%FAKE_TLS%");
+            config.AvailableArguments.Add("--dpi-desync-split-seqovl-pattern=%FAKE_TLS%");
+            config.AvailableArguments.Add("--ipset=%IPSET%");
+            config.AvailableArguments.Add("--hostlist=%HOSTLIST%");
         }
 
         if (config.Features.Count == 0)
@@ -220,7 +276,7 @@ internal class ConfigManager
                         "--dpi-desync-split-pos=method+2",
                         "--new",
                         "--dpi-desync=syndata,multidisorder",
-                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--dpi-desync-fake-quic=%FAKE_QUIC%",
                         "--dpi-desync-split-pos=method+2",
                         "--new",
                         "--dpi-desync=multidisorder",
@@ -271,10 +327,10 @@ internal class ConfigManager
                         "--wf-tcp=80,443",
                         "--wf-udp=443,50000-50100",
                         "--filter-udp=443",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%HOSTLIST%",
                         "--dpi-desync=fake",
                         "--dpi-desync-repeats=6",
-                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--dpi-desync-fake-quic=%FAKE_QUIC%",
                         "--new",
                         "--filter-udp=50000-50100",
                         "--filter-l7=discord,stun",
@@ -282,13 +338,13 @@ internal class ConfigManager
                         "--dpi-desync-repeats=6",
                         "--new",
                         "--filter-tcp=80",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%FAKE_QUIC%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-autottl=2",
                         "--dpi-desync-fooling=md5sig",
                         "--new",
                         "--filter-tcp=443",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%HOSTLIST%",
                         "--dpi-desync=split",
                         "--dpi-desync-split-pos=1",
                         "--dpi-desync-autottl",
@@ -296,19 +352,19 @@ internal class ConfigManager
                         "--dpi-desync-fooling=badseq",
                         "--new",
                         "--filter-udp=443",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=fake",
                         "--dpi-desync-repeats=6",
-                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--dpi-desync-fake-quic=%FAKE_QUIC%",
                         "--new",
                         "--filter-tcp=80",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-autottl=2",
                         "--dpi-desync-fooling=md5sig",
                         "--new",
                         "--filter-tcp=443",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=split",
                         "--dpi-desync-split-pos=1",
                         "--dpi-desync-autottl",
@@ -325,10 +381,10 @@ internal class ConfigManager
                         "--wf-tcp=80,443",
                         "--wf-udp=443,50000-50100",
                         "--filter-udp=443",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%HOSTLIST%",
                         "--dpi-desync=fake",
                         "--dpi-desync-repeats=6",
-                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--dpi-desync-fake-quic=%FAKE_QUIC%",
                         "--new",
                         "--filter-udp=50000-50100",
                         "--filter-l7=discord,stun",
@@ -336,47 +392,89 @@ internal class ConfigManager
                         "--dpi-desync-repeats=6",
                         "--new",
                         "--filter-tcp=80",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%HOSTLIST%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-autottl=2",
                         "--dpi-desync-fooling=md5sig",
                         "--new",
                         "--filter-tcp=443",
-                        $@"--hostlist=""{Consts.HOSTLIST_PREFIX}""",
+                        "--hostlist=%HOSTLIST%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-split-pos=1",
                         "--dpi-desync-autottl",
                         "--dpi-desync-repeats=6",
                         "--dpi-desync-fooling=md5sig",
-                        $@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}""",
+                        "--dpi-desync-fake-tls=%FAKE_TLS%",
                         "--new",
                         "--filter-udp=443",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=fake",
                         "--dpi-desync-repeats=6",
-                        $@"--dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}""",
+                        "--dpi-desync-fake-quic=%FAKE_QUIC%",
                         "--new",
                         "--filter-tcp=80",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-autottl=2",
                         "--dpi-desync-fooling=md5sig",
                         "--new",
                         "--filter-tcp=443",
-                        $@"--ipset=""{Consts.IPSET_PREFIX}""",
+                        "--ipset=%IPSET%",
                         "--dpi-desync=fake,split2",
                         "--dpi-desync-split-pos=1",
                         "--dpi-desync-repeats=6",
                         "--dpi-desync-fooling=md5sig",
-                        $@"--dpi-desync-fake-tls=""{Consts.FAKE_TLS_PREFIX}"""
+                        "--dpi-desync-fake-tls=%FAKE_TLS%"
                     ],
                     Tooltip = "У меня не работает (для обхода бана - нужно вносить адреса сайтов в list-general)",
                 },
                 new()
                 {
                     Name = "Bypass Method #6",
-                    Arguments = [$@"--wf-tcp=80,443 --wf-udp=443,50000-50099 --filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig --new --filter-tcp=443 --hostlist=""{Consts.HOSTLIST_PREFIX}"" --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --new --filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig --new --filter-tcp=443 --hostlist=""{Consts.HOSTLIST_PREFIX}"" --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=""{Consts.FAKE_QUIC_PREFIX}"" --new --filter-tcp=443 --dpi-desync=fake --dpi-desync-repeats=11 --new --filter-udp=50000-50099 --filter-l7=discord,stun --dpi-desync=fake"],
+                    Arguments = ["--wf-tcp=80,443 --wf-udp=443,50000-50099 --filter-tcp=80 --dpi-desync=fake,fakedsplit --dpi-desync-autottl=2 --dpi-desync-fooling=md5sig --new --filter-tcp=443 --hostlist=%HOSTLIST% --dpi-desync=fake,multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --new --filter-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-split-pos=midsld --dpi-desync-repeats=6 --dpi-desync-fooling=badseq,md5sig --new --filter-tcp=443 --hostlist=%HOSTLIST% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic=%FAKE_QUIC% --new --filter-tcp=443 --dpi-desync=fake --dpi-desync-repeats=11 --new --filter-udp=50000-50099 --filter-l7=discord,stun --dpi-desync=fake"],
                     Tooltip = "Не работает"
+                },
+                new()
+                {
+                    Name = "Bypass Method #7",
+                    Arguments =
+                    [
+                        "--wf-tcp=80,443",
+                        "--wf-udp=443,50000-50099",
+                        "--filter-udp=443",
+                        "--dpi-desync=fakedsplit",
+                        "--dpi-desync-autottl=2",
+                        "--dpi-desync-fooling=md5sig",
+                        "--new",
+                        "--filter-tcp=443",
+                        "--hostlist=%HOSTLIST%",
+                        "--dpi-desync=split2",
+                        "--dpi-desync-split-seqovl=652",
+                        "--dpi-desync-split-pos=2",
+                        "--dpi-desync-split-seqovl-pattern=%FAKE_TLS%",
+                        "--new",
+                        "--filter-tcp=443",
+                        "--ipset=%IPSET%",
+                        "--dpi-desync=split2",
+                        "--dpi-desync-split-seqovl=652",
+                        "--dpi-desync-split-pos=2",
+                        "--dpi-desync-split-seqovl-pattern=%FAKE_TLS%",
+                        "--new",
+                        "--filter-tcp=443",
+                        "--dpi-desync=multidisorder",
+                        "--dpi-desync-split-pos=midsld",
+                        "--dpi-desync-repeats=6",
+                        "--dpi-desync-fooling=badseq,md5sig",
+                        "--new",
+                        "--filter-udp=443",
+                        "--dpi-desync=fake",
+                        "--dpi-desync-repeats=11",
+                        "--new",
+                        "--filter-udp=50000-50099",
+                        "--filter-l7=discord,stun",
+                        "--dpi-desync=fake"
+                    ],
+                    Tooltip = "Ютуб работает, дискорд не проверял"
                 },
             ];
         }

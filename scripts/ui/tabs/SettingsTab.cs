@@ -41,6 +41,8 @@ internal class SettingsTab : ITab
 
             Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
 
+            configManager.Load();
+
             processLauncher.RunAntiZapret();
         }
 
@@ -55,6 +57,8 @@ internal class SettingsTab : ITab
             }
 
             Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
+
+            configManager.Load();
 
             processLauncher.RunGoodbyeDPI();
         }
