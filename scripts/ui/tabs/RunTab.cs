@@ -101,7 +101,7 @@ internal class RunTab : ITab
 
                 processLauncher.RunZapret();
             }
-            ImGuiUtils.Tooltip("Перед запусокм сначала формируется строка аргументов из выбранных Bypass Method\nПотом Argument Chain Builder, для избегания конфликтов нужно выбрать только один Bypass Method\nИ очистить Argument Chain Builder, либо вы знаете, что делаете и переделали всё под себя, то можно поразному эксперементировать");
+            ImGuiUtils.Tooltip("Перед запуском сначала формируется строка аргументов из выбранных Bypass Method\nПотом Argument Chain Builder, для избегания конфликтов нужно выбрать только один Bypass Method\nИ очистить Argument Chain Builder, либо вы знаете, что делаете и переделали всё под себя, то можно поразному эксперементировать");
 
             ImGui.SameLine();
 
