@@ -8,6 +8,8 @@ internal class Program : Overlay
     readonly TabSystem tabSystem;
     readonly Notification notification;
 
+    bool isWindowOpen = true;
+
     Program() : base(WinAPI.GetScreenWidth(), WinAPI.GetScreenHeight())
     {
         notification = new Notification();
@@ -15,12 +17,12 @@ internal class Program : Overlay
         configManager = new ConfigManager(notification);
 
         tabSystem = new TabSystem(
+            new RunTab(configManager),
             new SettingsTab(configManager),
             new EditorTab(configManager),
             new ConsoleTab(),
             new HelpTab(),
-            new LinksTab(),
-            new ExitTab()
+            new LinksTab()
         );
     }
 
@@ -43,10 +45,18 @@ internal class Program : Overlay
         SetWindowStyle();
         SetWindowPos();
 
-        ImGui.Begin($"Zapret UI - {Consts.VERSION}");
-        tabSystem.Render();
-
-        ImGui.End();
+        if (isWindowOpen)
+        {
+            if (ImGui.Begin($"Zapret UI - {Consts.VERSION}", ref isWindowOpen))
+            {
+                tabSystem.Render();
+            }
+            ImGui.End();
+        }
+        else
+        {
+            Environment.Exit(0);
+        }
 
         notification.Render();
 

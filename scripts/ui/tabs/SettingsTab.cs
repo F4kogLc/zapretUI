@@ -4,13 +4,11 @@ using ImGuiNET;
 internal class SettingsTab : ITab
 {
     readonly ConfigManager configManager;
-    readonly ProcessLauncher processLauncher;
     readonly ArgumentChainEditor argumentChainEditor;
 
     public SettingsTab(ConfigManager configManager)
     {
         this.configManager = configManager;
-        processLauncher = new(configManager);
         argumentChainEditor = new(configManager);
     }
 
@@ -18,68 +16,12 @@ internal class SettingsTab : ITab
     {
         if (!ImGui.BeginTabItem("Settings")) return;
 
-        RenderRunButton();
         RenderConfigControls();
         RenderFeaturesSettings();
         argumentChainEditor.Render();
         RenderSettings();
 
         ImGui.EndTabItem();
-    }
-
-    void RenderRunButton()
-    {
-        ImGuiUtils.CenterUIElement(120);
-
-        if (ImGui.Button("Run Zapret", new Vector2(120, 30)))
-        {
-            if (!Utils.IsRunAsAdmin())
-            {
-                Utils.RestartAsAdmin();
-                return;
-            }
-
-            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
-
-            configManager.Load();
-
-            processLauncher.RunAntiZapret();
-        }
-
-        ImGui.SameLine();
-
-        if (ImGui.Button("Run GoodbyeDPI", new Vector2(120, 30)))
-        {
-            if (!Utils.IsRunAsAdmin())
-            {
-                Utils.RestartAsAdmin();
-                return;
-            }
-
-            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
-
-            configManager.Load();
-
-            processLauncher.RunGoodbyeDPI();
-        }
-
-        ImGuiUtils.CenterUIElement(60);
-
-        if (ImGui.Button("Run Blockcheck", new Vector2(120, 30)))
-        {
-            if (!Utils.IsRunAsAdmin())
-            {
-                Utils.RestartAsAdmin();
-                return;
-            }
-
-            Utils.KillProcess("winws", "goodbyedpi", "WinDivert64", "WinDivert");
-
-            processLauncher.RunBlockcheck();
-        }
-        ImGuiUtils.Tooltip("После закрытия окна с блокчеком - успешные аргументы будут скопированы во вкладку Console\n\nAfter closing the blockcheck - successful arguments will be copied to the Console tab");
-
-        ImGui.Separator();
     }
 
     void RenderConfigControls()

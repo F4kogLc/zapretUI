@@ -42,14 +42,14 @@ internal class OutputLogger : IElement
             logBuffer.Clear();
         }
 
-        ImGui.BeginChild("ScrollingRegion", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()));
+        ImGui.BeginChild("ScrollingRegion", new Vector2(-1, -1));
 
         var logText = logBuffer.ToString();
 
         ImGui.InputTextMultiline(
             "##LogOutput",
             ref logText,
-            100000,
+            1000000,
             new Vector2(-1, -1),
             ImGuiInputTextFlags.ReadOnly
         );

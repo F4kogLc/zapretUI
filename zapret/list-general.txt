@@ -1,4 +1,12 @@
+static-cloudflare.top
+challenges.cloudflare.com
+cloudflare.com
+dns.cloudflare.com
 cloudflare-ech.com
+cloudflare-dns.com
+alec.ns.cloudflare.com
+engage.cloudflareclient.com
+
 dis.gd
 discord-attachments-uploads-prd.storage.googleapis.com
 discord.app
@@ -37,11 +45,7 @@ youtu.be
 yt-video-upload.l.google.com
 ytimg.com
 ytimg.l.google.com
-frankerfacez.com
-ffzap.com
-betterttv.net
-7tv.app
-7tv.io
+
 ntc.party
 torproject.org
 

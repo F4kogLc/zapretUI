@@ -10,10 +10,24 @@ internal class ProcessLauncher
         this.configManager = configManager;
     }
 
-    public void RunAntiZapret()
+    public void RunZapretTest(string args)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = configManager.Config.ZapretPath,
+            Arguments = args,
+            WindowStyle = configManager.Config.ShowConsole ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden,
+            UseShellExecute = false,
+        };
+
+        using var process = new Process { StartInfo = startInfo };
+        process.Start();
+    }
+
+    public void RunZapret()
         => RunProcess(configManager.Config.ZapretPath, BuildArgumentsString());
 
-    public void RunGoodbyeDPI()
+    public void RunGoodbye()
         => RunProcess(configManager.Config.GoodbyeDpiPath, BuildArgumentsString());
 
     public void RunBlockcheck()
@@ -49,6 +63,8 @@ internal class ProcessLauncher
     {
         try
         {
+            Console.WriteLine($"Run: {fileName} | Args: {arguments}");
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = fileName,

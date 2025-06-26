@@ -20,6 +20,21 @@ internal static class ImGuiUtils
     }
     */
 
+    public static void TextCentered(string text, bool isColored = false, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f)
+    {
+        var availableWidth = ImGui.GetContentRegionAvail().X;
+        var textSize = ImGui.CalcTextSize(text);
+        var offset = (availableWidth - textSize.X) * 0.5f;
+
+        if (offset > 0)
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + offset);
+
+        if (!isColored)
+            ImGui.Text(text);
+        else
+            ImGui.TextColored(new Vector4(r, g, b, a), text);
+    }
+
     public static void CenterUIElement(float width)
     {
         float availableWidth = ImGui.GetContentRegionAvail().X;

@@ -64,6 +64,9 @@
 
             if (expectNextLine)
             {
+                if (line.TrimStart().StartsWith("WARNING"))
+                    continue;
+
                 var processedLine = line.TrimStart();
 
                 var winwsIndex = processedLine.IndexOf("winws");
