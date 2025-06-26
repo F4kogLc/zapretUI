@@ -10,7 +10,6 @@ internal class ListEditor : IElement
     int selectedFileIndex = -1;
     string currentFilePath = "";
     string fileContent = "";
-    float fileEditorHeight = 400f;
 
     public ListEditor()
     {
@@ -47,31 +46,11 @@ internal class ListEditor : IElement
 
         ImGui.Text($"Lines: {fileContent.Split('\n').Length} | Characters: {fileContent.Length}");
 
-        if (ImGui.BeginChild("##FileEditorContainer", new Vector2(-1, fileEditorHeight), ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar))
+        if (ImGui.BeginChild("##FileEditorContainer", new Vector2(-1, -1), ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar))
         {
-            ImGui.InputTextMultiline(
-                "##FileContent",
-                ref fileContent,
-                1000000,
-                new Vector2(-1, ImGui.GetContentRegionAvail().Y)
-            );
+            ImGui.InputTextMultiline("##FileContent", ref fileContent, 1000000, new Vector2(-1, -1));
         }
         ImGui.EndChild();
-
-        ImGui.InvisibleButton("##ResizeFileEditor", new Vector2(-1, 8));
-
-        if (ImGui.IsItemActive())
-        {
-            fileEditorHeight += ImGui.GetIO().MouseDelta.Y;
-            fileEditorHeight = Math.Clamp(fileEditorHeight, minHeight, maxHeight);
-        }
-
-        if (ImGui.IsItemHovered() || ImGui.IsItemActive())
-        {
-            ImGui.SetMouseCursor(ImGuiMouseCursor.ResizeNS);
-        }
-
-        ImGuiUtils.CustomSeparator();
     }
 
     void LoadAvailableFiles()
