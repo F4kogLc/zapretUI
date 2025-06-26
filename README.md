@@ -5,10 +5,11 @@
 <summary>Скриншоты</summary>
   
 ![Recording 2025-05-03 132106](https://github.com/user-attachments/assets/970a215f-f79a-4ef7-8ff1-1cb38c99d12a)
-  
-![image](https://github.com/user-attachments/assets/d48b3bd2-7981-47ce-848b-83f464450253)
 
-![image](https://github.com/user-attachments/assets/6ad5c966-3e69-41e7-a69d-07ae55c2496b)
+![image](https://github.com/user-attachments/assets/ad9e0317-4cfd-4b1e-803a-954210f938f3)
+![image](https://github.com/user-attachments/assets/a114227b-a18c-4c4f-88d9-471448ac07ae)
+![image](https://github.com/user-attachments/assets/f2ff6e7e-b971-4249-8788-bf041e06da86)
+![image](https://github.com/user-attachments/assets/ef811588-b485-4220-b48f-108b142fa51f)
 
 </details>
 
