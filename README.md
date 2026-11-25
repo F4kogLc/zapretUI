@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://store.steampowered.com/app/5527850/PSYCHOTRIP/">👉кое-что интересное👈</a>
+  <a href="https://store.steampowered.com/app/5527850?utm_source=github&utm_campaign=release">👉кое-что интересное👈</a>
 </p>
 
 # Демонстрация
